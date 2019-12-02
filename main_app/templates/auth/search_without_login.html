@@ -6,55 +6,21 @@
 </head>
 <body>
     <label for="time">Time</label>
-    <input id="time" type="datetime-local" required>
+    <input id="time" name="time" type="date" required>
     <hr>
     <label for="departure_city">Departure City</label>
-    <input id="departure_city" required>
+    <input id="departure_city" name="departure_city" required>
     <label for="departure_airport">Departure Airport</label>
-    <input id="departure_airport" required>
+    <input id="departure_airport" name="departure_airport" required>
     <hr>
     <label for="destination_city">Destination City</label>
-    <input id="destination_city" required>
+    <input id="destination_city" name="destination_city" required>
     <label for="destination_airport">Destination Airport</label>
-    <input id="destination_airport" required>
+    <input id="destination_airport" name="destination_airport" required>
     <hr>
     <button onclick="search()">Search</button>
-    <hr>
-    <table border="1">
-      <tr>
-        <th>Search Result</th>
-      </tr>
-      <tr>
-          <th>Flight Number</th>
-          <th>Airline</th>
-          <th>Departure Time</th>
-          <th>Departure Airport</th>
-          <th>Departure City</th>
-          <th>Arrive Time</th>
-          <th>Arrive Airport</th>
-          <th>Arrive City</th>
-          <th>Flight Status</th>
-      </tr>
-        {% if flights %}
-        {% for f in flights %}
-        <tr>
-            <th>{{ f['flight_number'] }}</th>
-            <th>{{ f['airline_name'] }}</th>
-            <th>{{ f['depart_date_time'] }}</th>
-            <th>{{ f['depart_airport'] }}</th>
-            <th>{{ f['departure_city'] }}</th>
-            <th>{{ f['arrive_date_time'] }}</th>
-            <th>{{ f['arrive_airport'] }}</th>
-            <th>{{ f['arrive_city'] }}</th>
-            <th>{{ f['flight_status'] }}</th>
-        </tr>
-        {% endfor %}
-        {% endif %}
-
-    </table>
 </body>
-</html>
-
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
     function search(){
         const time = document.getElementById("time").value;
@@ -67,11 +33,15 @@
             type: 'POST',
             contentType: 'application/json;charset-utf-08',
             dateType: 'json',
-            url: "http://127.0.0.1:5000/auth/search_without_login?time=" + time
-            + "departure_city=" + departure_city
-            + "departure_airport=" + departure_airport
-            + "destination_city=" + destination_city
-            + "destination_airport=" + destination_airport
+            url: "http://127.0.0.1:5000/auth/show_result?time=" + time
+            + "&departure_city=" + departure_city
+            + "&departure_airport=" + departure_airport
+            + "&destination_city=" + destination_city
+            + "&destination_airport=" + destination_airport,
+            success: function(response){ document.write(response);}
         });
     }
 </script>
+
+</html>
+
