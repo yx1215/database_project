@@ -165,6 +165,7 @@ def login():
         if error is None:
             session.clear()
             session['login_type'] = login_type
+            g.user = user
             if login_type == 'airline_staff':
                 session['key'] = user['username']
                 return render_template("user_interface.html")
@@ -173,7 +174,7 @@ def login():
                 return render_template("user_interface.html")
             elif login_type == 'customer':
                 session['key'] = user['cust_email']
-                return render_template("user_interface.html")
+                return redirect(url_for('customer.search'))
 
         flash(error)
 
