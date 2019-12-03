@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Search By Place</h1>
+    <select id="search_type" onchange="change(this.options[this.selectedIndex].value)">
+        <option value="one_way">Search for one way</option>
+        <option value="two_way">Search for two way</option>
+    </select>
+    <hr>
+    <label for="departure_date">Departure Date</label>
+    <input id="departure_date" name="departure_date" type="date">
+    <label for="return_date" id="return_date_label" hidden>Return Date</label>
+    <input id="return_date" name="arrive_date" type="date" hidden>
+    <hr>
+    <div id="departure_info">
+        <label for="departure_city">Departure City</label>
+        <input id="departure_city" name="departure_city">
+        <label for="departure_airport">Departure Airport</label>
+        <input id="departure_airport" name="departure_airport">
+    </div>
+    <hr>
+    <div id="destination_info">
+        <label for="destination_city">Destination City</label>
+        <input id="destination_city" name="destination_city">
+        <label for="destination_airport">Destination Airport</label>
+        <input id="destination_airport" name="destination_airport">
+    </div>
+    <hr>
+    <button onclick="search_by_place()">Search</button>
+    <button href="{{ url_for('auth.login') }}">Back to Login</button>
+
+    <hr>
+    <h1>Search By Airline</h1>
+    <label for="airline_name">Airline Name</label>
+    <input type="text" id="airline_name">
+
+    <label for="flight_number">Flight Number</label>
+    <input type="text" id="flight_number">
+    <hr>
+    <label for="departure_date2">Departure Date</label>
+    <input id="departure_date2" type="date">
+    <label for="arrive_date2">Arrive Date</label>
+    <input id="arrive_date2" type="date">
+    <hr>
+    <button onclick="search_by_airline()">Search</button>
+
+
+
+
+
+</body>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    function change(value){
+        if (value === "one_way"){
+            document.getElementById("return_date").hidden = true;
+            document.getElementById("return_date_label").hidden = true;
+        }
+        else if (value === "two_way"){
+            document.getElementById("return_date").hidden = false;
+            document.getElementById("return_date_label").hidden = false;
+        }
+    }
+
+    function search_by_place(){
+        const search_type = document.getElementById("search_type").value;
+        const departure_date = document.getElementById("departure_date").value;
+        const arrive_date = document.getElementById("return_date").value;
+        const departure_city = document.getElementById('departure_city').value;
+        const departure_airport = document.getElementById('departure_airport').value;
+        const destination_city = document.getElementById('destination_city').value;
+        const destination_airport = document.getElementById('destination_airport').value;
+
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json;charset-utf-08',
+            dateType: 'json',
+            url: "http://127.0.0.1:5000/auth/show_result?departure_date=" + departure_date
+                + "&arrive_date=" + arrive_date
+                + "&departure_city=" + departure_city
+                + "&departure_airport=" + departure_airport
+                + "&destination_city=" + destination_city
+                + "&destination_airport=" + destination_airport
+                + "&search_type=" + search_type,
+            success: function (response) {
+                document.write(response);
+            }
+        });
+    }
+
+    function search_by_airline(){
+        const airline_name = document.getElementById("airline_name").value;
+        const flight_number = document.getElementById("flight_number").value;
+        const departure_date = document.getElementById("departure_date2").value;
+        const arrive_date = document.getElementById("arrive_date2").value;
+        const search_type = "by_airline";
+
+        $.ajax({
+            type: 'POST',
+            contentType: 'application/json;charset-utf-08',
+            dateType: 'json',
+            url: "http://127.0.0.1:5000/auth/show_result?departure_date=" + departure_date
+                + "&arrive_date=" + arrive_date
+                + "&airline_name=" + airline_name
+                + "&flight_number=" + flight_number
+                + "&search_type=" + search_type,
+            success: function (response) {
+                document.write(response);
+            }
+        });
+
+
+    }
+</script>
+
+</html>
+
