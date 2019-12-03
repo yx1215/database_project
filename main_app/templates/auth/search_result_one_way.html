@@ -19,6 +19,7 @@
           <th>Arrive Airport</th>
           <th>Arrive City</th>
           <th>Flight Status</th>
+          <th>Purchase</th>
       </tr>
         {% if flights %}
         {% for f in flights %}
@@ -32,6 +33,7 @@
             <th>{{ f['arrive_airport'] }}</th>
             <th>{{ f['arrive_city'] }}</th>
             <th>{{ f['flight_status'] }}</th>
+            <th><button onclick="purchase('{{ f['flight_number'] }}', '{{ f['airline_name'] }}', '{{ f['depart_date_time'] }}')">Purchase</button></th>
         </tr>
         {% endfor %}
         {% endif %}
@@ -39,3 +41,25 @@
     <button onclick="window.location.reload();">Back to Search</button>
 </body>
 </html>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    function purchase(flight_number, airline_name, depart_date_time){
+        {% if g.user %}
+            if (confirm("Are you sure?")){
+            $.ajax({
+                type: 'POST',
+                contentType: 'application/json;charset-utf-08',
+                dateType: 'json',
+                url: "http://127.0.0.1:5000/cust/purchase?depart_date_time=" + depart_date_time
+                    + "&airline_name=" + airline_name
+                    + "&flight_number=" + flight_number,
+                success: function (response) {
+                    document.write(response);
+                }
+            });
+        {% else %}
+            console.log("not login");
+        {% endif %}
+        }
+    }
+</script>

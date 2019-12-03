@@ -1,43 +1,32 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from main_app.authentication import login_required
+from main_app.authentication import login_required_customer
 
 from main_app.database import get_db
+
+import random
 
 customer_bp = Blueprint("customer", __name__, url_prefix="/cust")
 
 
 @customer_bp.route('/customer_page', methods=('POST', 'GET'))
-@login_required
-def search():
-    return render_template('/auth/search_without_login.html', flights=None)
+@login_required_customer
+def home():
+    return render_template('/customer.html')
 
 
-def show_result():
-    if request.method == "POST":
-        time = request.args["time"]
-        start_time = time + " " + "00:00:00"
-        end_time = time + " " + "23:59:59"
-        departure_city = request.args["departure_city"]
-        departure_airport = request.args["departure_airport"]
-        destination_city = request.args["destination_city"]
-        destination_airport = request.args["destination_airport"]
-        db = get_db()
-        target_flights = db.execute("SELECT * FROM Flight "
-                                    "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                    "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                    "WHERE (depart_date_time BETWEEN ? AND ?) AND depart_airport=? AND arrive_airport=? AND departure_city=? AND arrive_city=?",
-                                    (start_time, end_time, departure_airport, destination_airport, departure_city, destination_city)).fetchall()
-        for f in target_flights:
-            print("here")
-            print(f["flight_number"])
-        return render_template('/auth/search_result.html', flights=target_flights)
-
-
-@customer_bp.route('/customer_page', methods=('POST', 'GET'))
-@login_required
+@customer_bp.route('/purchase', methods=('POST', 'GET'))
+@login_required_customer
 def purchase():
     if request.method == 'POST':
-        pass
+        flight_number = request.args["flight_number"]
+        airline_name = request.args["airline_name"]
+        depart_date_time = request.args["depart_date_time"]
+        db = get_db()
+        purchased_flight = db.execute('SELECT * FROM Flight WHERE flight_number=? AND airline_name=? AND depart_date_time=?',
+                   (flight_number, airline_name, depart_date_time)).fetchone()
+        ticket_id = random.randint(1, 1e7)
+        print(ticket_id)
+    return render_template('./auth/purchase_interface.html')
 

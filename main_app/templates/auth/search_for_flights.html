@@ -31,7 +31,6 @@
     </div>
     <hr>
     <button onclick="search_by_place()">Search</button>
-    <button href="{{ url_for('auth.login') }}">Back to Login</button>
 
     <hr>
     <h1>Search By Airline</h1>
@@ -47,6 +46,7 @@
     <input id="arrive_date2" type="date">
     <hr>
     <button onclick="search_by_airline()">Search</button>
+    <button onclick="back_to_pre()">Back</button>
 
 
 
@@ -114,6 +114,23 @@
         });
 
 
+    }
+
+    function back_to_pre(){
+        {% if g.user %}
+            const t = '{{ g.type }}';
+            if ( t === 'customer') {
+                location.href = '{{ url_for('customer.home') }}';
+            }
+            else if (t === 'airline_staff') {
+                location.href = '{{ url_for('auth.login') }}';
+            }
+            else if (t === 'booking_agent') {
+                location.href = '{{ url_for('auth.login') }}';
+            }
+        {% else %}
+            location.href = '{{ url_for('auth.login') }}';
+        {% endif %}
     }
 </script>
 

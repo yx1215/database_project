@@ -174,14 +174,14 @@ def login():
                 return render_template("user_interface.html")
             elif login_type == 'customer':
                 session['key'] = user['cust_email']
-                return redirect(url_for('customer.search'))
+                return redirect(url_for('customer.home'))
 
         flash(error)
 
     return render_template('/auth/login.html')
 
 
-@auth_bp.route('/search_without_login', methods=('POST', 'GET'))
+@auth_bp.route('/search', methods=('POST', 'GET'))
 def search():
     return render_template('/auth/search_for_flights.html', flights=None)
 
@@ -270,10 +270,32 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
-def login_required(view):
+def login_required_customer(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
-        if g.user is None:
+        if g.user is None or g.type != 'customer':
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+def login_required_airline_staff(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None or g.type != 'airline_staff':
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+def login_required_booking_agent(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None or g.type != 'booking_agent':
             return redirect(url_for('auth.login'))
 
         return view(**kwargs)
