@@ -5,6 +5,16 @@
     <title>Title</title>
 </head>
 <body>
+<section class="content">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+    <center>
+        <div class="flash" style="color:red;font-size: 30px;">{{ message }}</div>
+    </center>
+    {% endfor %} {% block content %}{% endblock %}
+</section>
     <h1>Search By Place</h1>
     <select id="search_type" onchange="change(this.options[this.selectedIndex].value)">
         <option value="one_way">Search for one way</option>

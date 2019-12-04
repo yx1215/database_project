@@ -34,7 +34,7 @@ def show_result():
                                         "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
                                         "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
                                         (departure_date, departure_airport, destination_airport, departure_city, destination_city)).fetchall()
-            return render_template('/auth/search_result_one_way.html', flights=target_flights)
+            return render_template('./auth/search_result_one_way.html', flights=target_flights)
         elif search_type == "two_way":
             print("two_way")
             departure_city = request.args["departure_city"] + "%"
@@ -54,7 +54,7 @@ def show_result():
                                            "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
                                            (arrive_date, destination_airport,
                                             departure_airport, destination_city, departure_city)).fetchall()
-            return render_template('/auth/search_result_two_way.html', departure_flights=departure_flights, arrive_flights=arrive_flights)
+            return render_template('./auth/search_result_two_way.html', departure_flights=departure_flights, arrive_flights=arrive_flights)
 
         elif search_type == "by_airline":
             airline_name = request.args["airline_name"] + "%"
@@ -64,7 +64,7 @@ def show_result():
                                         "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
                                         "WHERE depart_date_time LIKE ? AND arrive_date_time LIKE ? AND airline_name LIKE ? AND flight_number LIKE ?",
                                         (departure_date, arrive_date, airline_name, flight_number)).fetchall()
-            return render_template("/auth/search_result_by_airline.html", flights=target_flights)
+            return render_template("./auth/search_result_by_airline.html", flights=target_flights)
 
 
 @search_bp.route('/purchase', methods=('POST', 'GET'))
@@ -83,11 +83,17 @@ def purchase():
         (selected_flight['airline_name'], selected_flight['flight_number'],
          selected_flight['depart_date_time'])).fetchone()
     print(sold_seats["C"])
-    if sold_seats['C'] / selected_flight['seat_amount'] >= 0.7:
+    percent = sold_seats['C'] / selected_flight['seat_amount']
+    error = None
+    if percent < 0.7 :
+        price = selected_flight["base_price"]
+    elif 0.7 <= percent < 1:
         price = selected_flight["base_price"] * 1.2
     else:
-        price = selected_flight["base_price"]
-
+        error = "No enough space, please choose another flight."
+    if error is not None:
+        flash(error)
+        return redirect(url_for('search_purchase.search'))
     if request.method == 'GET':
 
         return render_template('./auth/purchase_interface.html', selected_flight=selected_flight, price=price)
