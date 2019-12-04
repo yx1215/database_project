@@ -23,7 +23,7 @@ def register():
         if register_type != 'booking_agent' and register_type != 'customer' and register_type != 'airline_staff':
             error = 'please choose a correct type of user to register.'
             flash(error)
-            return render_template('/auth/register.html')
+            return render_template('./auth/register.html')
 
         password = request.form["password"]
         repeat_password = request.form["repeat_password"]
@@ -31,7 +31,7 @@ def register():
         if repeat_password != password:
             error = "two passwords are not the same."
             flash(error)
-            return render_template('/auth/register.html')
+            return render_template('./auth/register.html')
 
         if register_type == "airline_staff":
             first_name = request.form["first_name"]
@@ -39,7 +39,7 @@ def register():
             email = request.form["email"]
             phone_number = request.form["phone_number"]
             date_of_birth = request.form["birthday"]
-            airline_name = request.form["airline"]
+            airline_name = request.form["airline_name"]
             if not first_name:
                 error = "first name is required."
             elif not last_name:
@@ -128,7 +128,7 @@ def register():
                 return redirect(url_for('auth.login'))
             flash(error)
 
-    return render_template('/auth/register.html')
+    return render_template('./auth/register.html')
 
 
 @auth_bp.route('/login', methods=('GET', 'POST'))
@@ -155,7 +155,7 @@ def login():
         else:
             error = 'Unknown type of user.'
             flash(error)
-            return render_template('/auth/login.html')
+            return render_template('./auth/login.html')
 
         if user is None:
             error = 'Incorrect username.'
@@ -168,10 +168,10 @@ def login():
             g.user = user
             if login_type == 'airline_staff':
                 session['key'] = user['username']
-                return render_template("user_interface.html")
+                return redirect(url_for('airline_staff.home'))
             elif login_type == 'booking_agent':
                 session['key'] = user['agent_email']
-                return render_template("user_interface.html")
+                return redirect(url_for('booking_agent.home'))
             elif login_type == 'customer':
                 session['key'] = user['cust_email']
                 return redirect(url_for('customer.home'))
@@ -179,63 +179,6 @@ def login():
         flash(error)
 
     return render_template('/auth/login.html')
-
-
-@auth_bp.route('/search', methods=('POST', 'GET'))
-def search():
-    return render_template('/auth/search_for_flights.html', flights=None)
-
-
-@auth_bp.route('/show_result', methods=('POST', ))
-def show_result():
-    if request.method == "POST":
-        search_type = request.args["search_type"]
-        departure_date = request.args["departure_date"] + "%"
-        arrive_date = request.args["arrive_date"] + "%"
-        db = get_db()
-
-        if search_type == "one_way":
-            departure_city = request.args["departure_city"] + "%"
-            departure_airport = request.args["departure_airport"] + "%"
-            destination_city = request.args["destination_city"] + "%"
-            destination_airport = request.args["destination_airport"] + "%"
-
-            target_flights = db.execute("SELECT * FROM Flight "
-                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
-                                        (departure_date, departure_airport, destination_airport, departure_city, destination_city)).fetchall()
-            return render_template('/auth/search_result_one_way.html', flights=target_flights)
-        elif search_type == "two_way":
-            print("two_way")
-            departure_city = request.args["departure_city"] + "%"
-            departure_airport = request.args["departure_airport"] + "%"
-            destination_city = request.args["destination_city"] + "%"
-            destination_airport = request.args["destination_airport"] + "%"
-
-            departure_flights = db.execute("SELECT * FROM Flight "
-                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
-                                        (departure_date, departure_airport,
-                                         destination_airport, departure_city, destination_city)).fetchall()
-            arrive_flights = db.execute("SELECT * FROM Flight "
-                                           "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                           "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                           "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
-                                           (arrive_date, destination_airport,
-                                            departure_airport, destination_city, departure_city)).fetchall()
-            return render_template('/auth/search_result_two_way.html', departure_flights=departure_flights, arrive_flights=arrive_flights)
-
-        elif search_type == "by_airline":
-            airline_name = request.args["airline_name"] + "%"
-            flight_number = request.args["flight_number"] + "%"
-            target_flights = db.execute("SELECT * FROM Flight "
-                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                        "WHERE depart_date_time LIKE ? AND arrive_date_time LIKE ? AND airline_name LIKE ? AND flight_number LIKE ?",
-                                        (departure_date, arrive_date, airline_name, flight_number)).fetchall()
-            return render_template("/auth/search_result_by_airline.html", flights=target_flights)
 
 
 @auth_bp.before_app_request
@@ -296,6 +239,17 @@ def login_required_booking_agent(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None or g.type != 'booking_agent':
+            return redirect(url_for('auth.login'))
+
+        return view(**kwargs)
+
+    return wrapped_view
+
+
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
             return redirect(url_for('auth.login'))
 
         return view(**kwargs)

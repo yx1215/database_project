@@ -18,7 +18,8 @@
           <th>Arrive Time</th>
           <th>Arrive Airport</th>
           <th>Arrive City</th>
-          <th>Flight Status</th>
+          <th>Delay Status</th>
+          <th>Purchase</th>
       </tr>
         {% if departure_flights %}
         {% for f in departure_flights %}
@@ -31,7 +32,8 @@
             <th>{{ f['arrive_date_time'] }}</th>
             <th>{{ f['arrive_airport'] }}</th>
             <th>{{ f['arrive_city'] }}</th>
-            <th>{{ f['flight_status'] }}</th>
+            <th>{{ f['delay_status'] }}</th>
+            <th><button onclick="purchase('{{ f['flight_number'] }}', '{{ f['airline_name'] }}', '{{ f['depart_date_time'] }}')">Purchase</button></th>
         </tr>
         {% endfor %}
         {% endif %}
@@ -51,7 +53,8 @@
           <th>Arrive Time</th>
           <th>Arrive Airport</th>
           <th>Arrive City</th>
-          <th>Flight Status</th>
+          <th>Delay Status</th>
+          <th>Purchase</th>
       </tr>
         {% if arrive_flights %}
         {% for f in arrive_flights %}
@@ -64,7 +67,8 @@
             <th>{{ f['arrive_date_time'] }}</th>
             <th>{{ f['arrive_airport'] }}</th>
             <th>{{ f['arrive_city'] }}</th>
-            <th>{{ f['flight_status'] }}</th>
+            <th>{{ f['delay_status'] }}</th>
+            <th><button onclick="purchase('{{ f['flight_number'] }}', '{{ f['airline_name'] }}', '{{ f['depart_date_time'] }}')">Purchase</button></th>
         </tr>
         {% endfor %}
         {% endif %}
@@ -72,3 +76,17 @@
     <button onclick="window.location.reload();">Back to Search</button>
 </body>
 </html>
+
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    function purchase(flight_number, airline_name, depart_date_time){
+        {% if g.user %}
+            location.href = '{{ url_for('search_purchase.purchase') }}?flight_number=' + flight_number
+            + "&airline_name=" + airline_name
+            + "&depart_date_time=" + depart_date_time;
+        {% else %}
+            location.href = '{{ url_for('auth.login') }}';
+        {% endif %}
+
+    }
+</script>

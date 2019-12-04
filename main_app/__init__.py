@@ -33,7 +33,16 @@ def create_app(test_config=None):
     from . import authentication
     app.register_blueprint(authentication.auth_bp)
 
+    from . import search_and_purchase
+    app.register_blueprint(search_and_purchase.search_bp)
+
     from . import customer
     app.register_blueprint(customer.customer_bp)
+
+    from . import booking_agent
+    app.register_blueprint(booking_agent.agent_bp)
+
+    from . import airline_staff
+    app.register_blueprint(airline_staff.staff_bp)
 
     return app

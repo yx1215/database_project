@@ -79,7 +79,7 @@
             type: 'POST',
             contentType: 'application/json;charset-utf-08',
             dateType: 'json',
-            url: "http://127.0.0.1:5000/auth/show_result?departure_date=" + departure_date
+            url: "http://127.0.0.1:5000/search_purchase/show_result?departure_date=" + departure_date
                 + "&arrive_date=" + arrive_date
                 + "&departure_city=" + departure_city
                 + "&departure_airport=" + departure_airport
@@ -103,7 +103,7 @@
             type: 'POST',
             contentType: 'application/json;charset-utf-08',
             dateType: 'json',
-            url: "http://127.0.0.1:5000/auth/show_result?departure_date=" + departure_date
+            url: "http://127.0.0.1:5000/search_purchase/show_result?departure_date=" + departure_date
                 + "&arrive_date=" + arrive_date
                 + "&airline_name=" + airline_name
                 + "&flight_number=" + flight_number
@@ -126,7 +126,7 @@
                 location.href = '{{ url_for('auth.login') }}';
             }
             else if (t === 'booking_agent') {
-                location.href = '{{ url_for('auth.login') }}';
+                location.href = '{{ url_for('booking_agent.home') }}';
             }
         {% else %}
             location.href = '{{ url_for('auth.login') }}';

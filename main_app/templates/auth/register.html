@@ -4,20 +4,7 @@
 {% block content %}
 <head>
 
-<!--    <meta charset="utf-8">-->
-<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">-->
-<!--    <meta name="description" content="">-->
-<!--    <meta name="author" content="">-->
-
     <title>User Register</title>
-
-    <!-- Custom fonts for this template-->
-<!--    <link href="./static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">-->
-<!--    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">-->
-
-<!--    &lt;!&ndash; Custom styles for this template&ndash;&gt;-->
-<!--    <link href="./static/css/sb-admin-2.min.css" rel="stylesheet">-->
 
 </head>
 
@@ -63,13 +50,16 @@
                                 <label id="personal_info_title">Personal Information</label>
 
                                 <div class="form-group row" id="name">
-
                                     <div class="col-sm-6 mb-3 mb-sm-0">
                                         <input type="text" class="form-control form-control-user" id="LastName" name="last_name" placeholder="Last Name" required>
                                     </div>
                                     <div class="col-sm-6">
                                         <input type="text" class="form-control form-control-user" id="FirstName" name="first_name" placeholder="First Name" required>
                                     </div>
+                                </div>
+
+                                <div class="form-group" id="birthday_class">
+                                    <input type="text" class="form-control form-control-user" id="airline_name" name="airline_name" placeholder="Airline Name" required hidden>
                                 </div>
 
                                 <div class="form-group" id="birthday_class">
@@ -169,6 +159,8 @@
 
     function hide_show_customer(state){
         console.log(state);
+        document.getElementById("airline_name").hidden = !state;
+        document.getElementById("airline_name").disabled = !state;
         document.getElementById("email").hidden = state;
         document.getElementById("email").disabled = state;
         document.getElementById("LastName").hidden = state;
@@ -193,6 +185,8 @@
     }
 
     function hide_show_booking_agent(state){
+        document.getElementById("airline_name").hidden = !state;
+        document.getElementById("airline_name").disabled = !state;
         document.getElementById("email").hidden = state;
         document.getElementById("email").disabled = state;
         document.getElementById("LastName").hidden = !state;
@@ -215,6 +209,8 @@
     }
 
     function hide_show_airline_staff(state){
+        document.getElementById("airline_name").hidden = state;
+        document.getElementById("airline_name").disabled = state;
         document.getElementById("email").hidden = state;
         document.getElementById("email").disabled = state;
         document.getElementById("LastName").hidden = state;

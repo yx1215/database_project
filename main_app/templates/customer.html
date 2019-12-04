@@ -7,11 +7,45 @@
 <body>
     <h1>Welcome, {{g.user['name']}}</h1>
     <!--search for ticket first-->
-    <button onclick="location.href='{{ url_for('auth.search') }}';">Click to search for flights</button>
+    <button onclick="location.href='{{ url_for('search_purchase.search') }}';">Click to search for flights</button>
+    <hr>
+    <h1>View My Purchase</h1>
+    <label for="from_date">From</label>
+    <input id="from_date" type="date">
+    <label for="to_date">To</label>
+    <input id="to_date" type="date">
+    <br><br>
+    <label for="depart_airport">Depart Airport</label>
+    <input id="depart_airport" type="text">
+    <label for="depart_city">Depart City</label>
+    <input id="depart_city" type="text">
+    <br><br>
+    <label for="arrive_airport">Arrive Airport</label>
+    <input id="arrive_airport" type="text">
+    <label for="arrive_city">Arrive City</label>
+    <input id="arrive_city" type="text">
     <br>
+    <br>
+    <button onclick="view_my_purchase()">Click to view your purchase</button>
+    <hr>
     <button onclick="location.href='{{ url_for('auth.logout') }}';">Logout</button>
 </body>
 </html>
 
 <script>
+    function view_my_purchase(){
+        const from_date = document.getElementById("from_date").value;
+        const to_date = document.getElementById("to_date").value;
+        const depart_airport = document.getElementById("depart_airport").value;
+        const depart_city = document.getElementById("depart_city").value;
+        const arrive_airport = document.getElementById("arrive_airport").value;
+        const arrive_city = document.getElementById("arrive_city").value;
+
+        location.href='{{ url_for('customer.my_purchase') }}?from_date=' + from_date
+        + "&to_date=" + to_date
+        + "&depart_airport=" + depart_airport
+        + "&depart_city=" + depart_city
+        + "&arrive_airport=" + arrive_airport
+        + "&arrive_city=" + arrive_city;
+    }
 </script>
