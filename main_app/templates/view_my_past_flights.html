@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<section class="content">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+    <center>
+        <div class="flash" style="color:red;font-size: 30px;">{{ message }}</div>
+    </center>
+    {% endfor %} {% block content %}{% endblock %}
+</section>
+<body>
+    <table border="1">
+      <tr>
+        <th>Past Flights</th>
+      </tr>
+      <tr>
+          <th>Flight Number</th>
+          <th>Airline</th>
+          <th>Departure Time</th>
+          <th>Departure Airport</th>
+          <th>Arrive Time</th>
+          <th>Arrive Airport</th>
+          <th>Delay Status</th>
+          <th>Comment</th>
+      </tr>
+        {% if past_flights %}
+        {% for f in past_flights %}
+        <tr>
+            <th>{{ f['flight_number'] }}</th>
+            <th>{{ f['airline_name'] }}</th>
+            <th>{{ f['depart_date_time'] }}</th>
+            <th>{{ f['depart_airport'] }}</th>
+            <th>{{ f['arrive_date_time'] }}</th>
+            <th>{{ f['arrive_airport'] }}</th>
+            <th>{{ f['delay_status'] }}</th>
+            <th><button onclick="comment('{{ f['flight_number'] }}', '{{ f['airline_name'] }}', '{{ f['depart_date_time'] }}')">Comment</button></th>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
+
+</body>
+</html>
+<script>
+    function comment(flight_number, airline_name, depart_date_time){
+        {% if g.user %}
+            location.href = '{{ url_for('customer.make_comments') }}?flight_number=' + flight_number
+            + "&airline_name=" + airline_name
+            + "&depart_date_time=" + depart_date_time;
+        {% else %}
+            location.href = '{{ url_for('auth.login') }}';
+        {% endif %}
+
+    }
+</script>
