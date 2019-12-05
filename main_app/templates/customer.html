@@ -6,7 +6,6 @@
 </head>
 <body>
     <h1>Welcome, {{g.user['name']}}</h1>
-    <!--search for ticket first-->
     <button onclick="location.href='{{ url_for('search_purchase.search') }}';">Click to search for flights</button>
     <hr>
     <h1>View My Purchase</h1>
@@ -16,7 +15,7 @@
     <input id="to_date" type="date">
     <br><br>
     <label for="depart_airport">Depart Airport</label>
-    <input id="depart_airport" type="text">
+    <input id="depart_airport" type="text" >
     <label for="depart_city">Depart City</label>
     <input id="depart_city" type="text">
     <br><br>

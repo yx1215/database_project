@@ -2,10 +2,81 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    Welcome, {{ g.user['username'] }}
+    <title>Airline Staff</title>
+    Welcome, {{ g.user['first_name'] }}
+    <br>
 </head>
 <body>
+    <hr>
+    <h1>Add an airplane</h1>
+    <br><br>
+    <label for="airline_name">Airline Name</label>
+    <input id="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+    <label for="plane_id">Plane ID</label>
+    <input id="plane_id" required="required" pattern="[A-Za-z0-9]{1,20}" type="number">
+    <br><br>
+    <label for="seat_amount">Seat Amount</label>
+    <input id="seat_amount" required="required" pattern="[A-Za-z0-9]{1,20}" type="number">
+    <br><br>
+    <button onclick=add_airline()>Click to add the airplane</button>
+    <br><br>
+
+    {% with messages = get_flashed_messages(category_filter=["add_status"]) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}"> {{ message|capitalize }} </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <hr>
+    <button onclick="location.href='{{ url_for('auth.logout') }}';">Logout</button>
+    <br><br>
+    <h1>Check flight status</h1>
+    <br><br><br><br>
+    <h1>Change Status of a Flight</h1>>
+    <form method="post">
+        <label for="airline_name">Airline Name</label>
+        <input id="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <label for="flight_number">Flight Number</label>
+        <input id="flight_number" name="flight_number" type="number" required>
+        <label for="depart_date_time">Departure Time</label>
+        <input id="depart_date_time" name="depart_date_time" type="datetime-local" required>
+        <label for="delay_status">Delay Status</label>
+        <select id="delay_status" name="delay_status">
+            <option value="delayed">delayed</option>
+            <option value="on_time">on-time</option>
+        </select>
+        <br>
+        <button onclick=update_status()>Click to update the status</button>
+        <br><br>
+
+    </form>
+
+
 
 </body>
 </html>
+<script>
+    function add_airline(){
+        const plane_id = document.getElementById("plane_id").value;
+        const airline_name = document.getElementById("airline_name").value;
+        const seat_amount = document.getElementById("seat_amount").value;
+
+        location.href='{{ url_for('airline_staff.add_airplane') }}?airline_name=' + airline_name
+        + "&plane_id=" + plane_id
+        + "&seat_amount=" + seat_amount;
+    }
+
+    function update_status(){
+        const flight_number = document.getElementById("flight_number").value;
+        const airline_name = document.getElementById("airline_name").value;
+        const depart_date_time = document.getElementById("depart_date_time").value;
+        const delay_status = document.getElementById("delay_status").value;
+
+        location.href='{{ url_for('airline_staff.update_status') }}?airline_name=' + airline_name
+        + "&flight_number=" + flight_number
+        + "&depart_date_time=" + depart_date_time
+        + "&delay_status=" + delay_status;
+    }
+
+</script>

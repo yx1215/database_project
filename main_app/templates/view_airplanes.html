@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Airplanes</title>
+</head>
+<body>
+<h1>View all of the airplanes in your airline</h1>
+    <table border="1">
+      <tr>
+          <th>Airplane ID</th>
+          <th>Seat Amount</th>
+      </tr>
+        {% for f in my_airplane %}
+            <tr>
+                <th>{{ f['plane_id'] }}</th>
+                <th>{{ f['seat_amount'] }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
