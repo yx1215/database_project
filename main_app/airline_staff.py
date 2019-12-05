@@ -56,13 +56,13 @@ def add_airplane():
 @staff_bp.route('/update_status', methods=('POST', 'GET'))
 @login_required_airline_staff
 def update_status():
-    print("CALLED")
-    print(list(request.args.keys()))
-    print(list(request.args.values()))
-    airline_name = request.args['airline_name']
-    flight_number = request.args['flight_number']
-    delay_status = request.args['delay_status']
-    depart_date_time = request.args['depart_date_time']
+    print(request.form)
+    airline_name = request.form['airline_name']
+    flight_number = request.form['flight_number']
+    delay_status = request.form['delay_status']
+    time = request.form['depart_date_time'].split("T")
+    depart_date_time = time[0] + " " + time[1] + ":00"
+    print(depart_date_time)
     db = get_db()
     if not flight_number:
         message = "Flight number is required"
@@ -79,9 +79,11 @@ def update_status():
     else:
         message = "You have successfully changed the status"
     if not message:
+        print('here')
         db.execute("UPDATE Flight SET delay_status=? where airline_name=? and flight_number=? and depart_date_time=?",
                    (delay_status, airline_name, flight_number, depart_date_time,))
-    flash(message, 'update_status')
+        db.commit()
+    flash('Update Status Result: ' + message)
 
     return render_template('airline_staff.html')
 

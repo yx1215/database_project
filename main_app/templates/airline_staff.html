@@ -6,6 +6,16 @@
     Welcome, {{ g.user['first_name'] }}
     <br>
 </head>
+<section class="content">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+    <center>
+        <div class="flash" style="color:red;font-size: 30px;">{{ message }}</div>
+    </center>
+    {% endfor %} {% block content %}{% endblock %}
+</section>
 <body>
     <hr>
     <h1>Add an airplane</h1>
@@ -34,22 +44,21 @@
     <h1>Check flight status</h1>
     <br><br><br><br>
     <h1>Change Status of a Flight</h1>>
-    <form method="post">
-        <label for="airline_name">Airline Name</label>
-        <input id="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
-        <label for="flight_number">Flight Number</label>
-        <input id="flight_number" name="flight_number" type="number" required>
-        <label for="depart_date_time">Departure Time</label>
-        <input id="depart_date_time" name="depart_date_time" type="datetime-local" required>
+    <form method="post" action="{{ url_for('airline_staff.update_status') }}">
+        <label for="airline_name_status">Airline Name</label>
+        <input id="airline_name_status" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <label for="flight_number_status">Flight Number</label>
+        <input id="flight_number_status" name="flight_number" type="text" required>
+        <label for="depart_date_time_status">Departure Time</label>
+        <input id="depart_date_time_status" name="depart_date_time" type="datetime-local" required>
         <label for="delay_status">Delay Status</label>
         <select id="delay_status" name="delay_status">
             <option value="delayed">delayed</option>
             <option value="on_time">on-time</option>
         </select>
         <br>
-        <button onclick=update_status()>Click to update the status</button>
+        <input type="submit" value="Click to change status">
         <br><br>
-
     </form>
 
 
