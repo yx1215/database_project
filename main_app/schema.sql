@@ -102,4 +102,22 @@ CREATE TABLE Purchase (
     FOREIGN KEY (ticket_id) REFERENCES Ticket (ticket_id) on delete cascade,
     FOREIGN KEY (cust_email) REFERENCES Customer (cust_email) on delete cascade,
     FOREIGN KEY (booking_agent) REFERENCES Booking_Agent (agent_email) on delete cascade
-)
+);
+
+create table Comments
+(
+	airline_name TEXT,
+	flight_number TEXT,
+	depart_date_time TIMESTAMP,
+	cust_email TEXT
+		constraint Comments_Customer_cust_email_fk
+			references Customer
+				on delete cascade,
+	comment TEXT,
+	rating INTEGER,
+	constraint Comments_pk
+		primary key (airline_name, flight_number, depart_date_time, cust_email),
+	constraint Comments_Flight_airline_name_flight_number_depart_date_time_fk
+		foreign key (airline_name, flight_number, depart_date_time) references Flight (airline_name, flight_number, depart_date_time)
+			on delete cascade
+);

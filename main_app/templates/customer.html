@@ -27,6 +27,17 @@
     <br>
     <button onclick="view_my_purchase()">Click to view your purchase</button>
     <hr>
+    <h1>Track My Spending</h1>
+    <label for="from_date_spend">From</label>
+    <input id="from_date_spend" type="date">
+    <label for="to_date_spend">To</label>
+    <input id="to_date_spend" type="date">
+    <br>
+    <br>
+    <button onclick="track_my_spending()">Click to view your spending</button>
+    <hr>
+    <button onclick="location.href='{{ url_for('customer.choose_flight_to_comment') }}'">Click to comment on previous flights</button>
+    <hr>
     <button onclick="location.href='{{ url_for('auth.logout') }}';">Logout</button>
 </body>
 </html>
@@ -40,11 +51,18 @@
         const arrive_airport = document.getElementById("arrive_airport").value;
         const arrive_city = document.getElementById("arrive_city").value;
 
-        location.href='{{ url_for('customer.my_purchase') }}?from_date=' + from_date
+        location.href ='{{ url_for('customer.my_purchase') }}?from_date=' + from_date
         + "&to_date=" + to_date
         + "&depart_airport=" + depart_airport
         + "&depart_city=" + depart_city
         + "&arrive_airport=" + arrive_airport
         + "&arrive_city=" + arrive_city;
+    }
+
+    function track_my_spending(){
+        const from_date = document.getElementById("from_date_spend").value;
+        const to_date = document.getElementById("to_date_spend").value;
+        location.href = '{{ url_for('customer.track_my_spending') }}?from_date=' + from_date
+        + "&to_date=" + to_date;
     }
 </script>

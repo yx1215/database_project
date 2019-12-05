@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<section class="content">
+    <header>
+        {% block header %}{% endblock %}
+    </header>
+    {% for message in get_flashed_messages() %}
+    <center>
+        <div class="flash" style="color:red;font-size: 30px;">{{ message }}</div>
+    </center>
+    {% endfor %} {% block content %}{% endblock %}
+</section>
+<body>
+<h1>You are commenting the following flight.</h1>
+    <table border="1">
+      <tr>
+          <th>Flight Number</th>
+          <th>Airline</th>
+          <th>Departure Time</th>
+          <th>Departure Airport</th>
+          <th>Arrive Time</th>
+          <th>Arrive Airport</th>
+          <th>Flight Status</th>
+      </tr>
+        <tr>
+            <th>{{ selected_flight['flight_number'] }}</th>
+            <th>{{ selected_flight['airline_name'] }}</th>
+            <th>{{ selected_flight['depart_date_time'] }}</th>
+            <th>{{ selected_flight['depart_airport'] }}</th>
+            <th>{{ selected_flight['arrive_date_time'] }}</th>
+            <th>{{ selected_flight['arrive_airport'] }}</th>
+            <th>{{ selected_flight['flight_status'] }}</th>
+        </tr>
+    </table>
+    <hr>
+    <label for="comments">Put your comment here.</label>
+    <hr>
+    <textarea id="comments"></textarea>
+    <br><br>
+    <label for="rating">Rating</label>
+    <hr>
+    <select id="rating">
+        <option value="1" selected>1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+    </select>
+    <hr>
+    <button onclick="comments('{{ selected_flight['airline_name'] }}', '{{ selected_flight['flight_number'] }}', '{{ selected_flight['depart_date_time'] }}')">Click to comment</button>
+
+</body>
+</html>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+    function comments(airline_name, flight_number, depart_date_time) {
+        const rating = document.getElementById("rating").value;
+        let content = document.getElementById("comments").value;
+        content = content.replace(/\n/g, JSON.stringify("\n").replace(/"/g, ""));
+        location.href = "{{ url_for('customer.make_comments') }}?comments=" + content
+            + "&airline_name=" + airline_name
+            + "&flight_number=" + flight_number
+            + "&depart_date_time=" + depart_date_time
+            + "&rating=" + rating;
+
+    }
+</script>

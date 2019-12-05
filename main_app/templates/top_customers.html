@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <script type="text/javascript">
+  window.onload = function () {
+    let chart1 = new CanvasJS.Chart("chartContainer1",
+
+    {
+      title:{
+        text: "Top 5 customer by number of tickets"
+      },
+      data: [
+      {
+        dataPoints: [
+            {% for r in top_by_tickets %}
+                { x: {{ r['index'] }}, y: {{r['count']}}, label: '{{ r['cust_email'] }}' },
+            {% endfor %}
+        ]
+      }
+      ]
+    });
+
+    chart1.render();
+    let chart2 = new CanvasJS.Chart("chartContainer2",
+
+    {
+      title:{
+        text: "Top 5 customer by total commission"
+      },
+      data: [
+      {
+        dataPoints: [
+            {% for r in top_by_commission %}
+                { x: {{ r['index'] }}, y: {{r['total_commission']}}, label: '{{ r['cust_email'] }}' },
+            {% endfor %}
+        ]
+      }
+      ]
+    });
+
+    chart2.render();
+  };
+  </script>
+  <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script></head>
+  <body>
+   <div id="chartContainer1" style="height: 300px; width: 100%;"></div>
+   <div id="chartContainer2" style="height: 300px; width: 100%;"></div>
+ </body>
+</html>

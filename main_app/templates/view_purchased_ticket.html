@@ -8,6 +8,7 @@
     <table border="1">
       <tr>
           <th>Ticket ID</th>
+          <th>Customer</th>
           <th>Airline</th>
           <th>Flight Number</th>
           <th>Departure Time</th>
@@ -21,6 +22,7 @@
         {% for f in my_purchase %}
             <tr>
                 <th>{{ f['ticket_id'] }}</th>
+                <th>{{ f['cust_email'] }}</th>
                 <th>{{ f['flight_number'] }}</th>
                 <th>{{ f['airline_name'] }}</th>
                 <th>{{ f['depart_date_time'] }}</th>
