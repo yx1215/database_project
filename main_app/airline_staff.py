@@ -78,11 +78,10 @@ def update_status():
         message = "Nothing is changed"
     else:
         message = "You have successfully changed the status"
-    if not message:
-        print('here')
         db.execute("UPDATE Flight SET delay_status=? where airline_name=? and flight_number=? and depart_date_time=?",
                    (delay_status, airline_name, flight_number, depart_date_time,))
         db.commit()
+
     flash('Update Status Result: ' + message)
 
     return render_template('airline_staff.html')
