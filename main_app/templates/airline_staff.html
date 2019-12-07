@@ -106,7 +106,7 @@
     </form>
     <hr>
     <h1>Add a Flight</h1>>
-    <form method="post" action="{{ url_for('airline_staff.add_flights') }}">
+    <form method="post" action="{{ url_for('airline_staff.add_flight') }}">
         <label for="airline_name_flight">Airline Name</label>
         <input id="airline_name_flight" name="airline_name_flight" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
 

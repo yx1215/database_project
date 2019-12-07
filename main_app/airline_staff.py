@@ -172,35 +172,67 @@ def view_flights():
     return render_template('view_future_flights.html', my_flight=my_flight)
 
 
-@staff_bp.route('/add_flights', methods=('POST', 'GET'))
+@staff_bp.route('/add_flight', methods=('POST', 'GET'))
 @login_required_airline_staff
-def add_flights():
-    print(list(request.args.keys()))
-    from_date = request.args["from_date"]
-    to_date = request.args["to_date"]
-    depart_airport = request.args["depart_airport"] + "%"
-    depart_city = request.args["depart_city"] + "%"
-    arrive_airport = request.args["arrive_airport"] + "%"
-    arrive_city = request.args["arrive_city"] + "%"
-    airline_name = request.args['airline_name']
-
+def add_flight():
+    print("CALLED")
+    airline_name = request.form['airline_name_flight']
+    plane_id = request.form['plane_id_flight']
+    flight_number = request.form['flight_number_flight']
+    d_time = request.form['depart_date_time_flight'].split("T")
+    a_time = request.form['arrive_date_time_flight'].split("T")
+    depart_date_time = d_time[0] + " " + d_time[1] + ":00"
+    arrive_date_time = a_time[0] + " " + a_time[1] + ":00"
+    depart_airport = request.form['departure_airport_flight']
+    arrive_airport = request.form['arrive_airport_flight']
+    base_price = request.form['base_price_flight']
+    flight_status = request.form['flight_status_flight']
+    delay_status = request.form['delay_status_flight']
     db = get_db()
-    if from_date == "" or to_date == "":
-        from_date = str(datetime.now())
-        to_date = str(datetime.now() + relativedelta(days=30))
-        # return render_template('view_future_flights.html', my_flight=my_flight)
-    if from_date > to_date:
-        flash("Wrong dates")
-    print(from_date, to_date)
-    my_flight = db.execute("select * from Flight JOIN "
-                           "(SELECT airport_name, city AS depart_city FROM Airport) A "
-                           "ON depart_airport=A.airport_name "
-                           "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 "
-                           "ON arrive_airport=A2.airport_name where airline_name=? and depart_airport LIKE ? "
-                           "AND depart_city LIKE ? AND arrive_airport LIKE ? AND arrive_city LIKE ? "
-                           "AND depart_date_time between ? and  ?",
-                           (airline_name, depart_airport, depart_city, arrive_airport, arrive_city, from_date, to_date))
-    return render_template('view_future_flights.html', my_flight=my_flight)
+    if not airline_name:
+        error = "Airline name is required"
+    elif not plane_id:
+        error = "Plane ID is required"
+    elif not flight_number:
+        error = "Flight number is required"
+    elif not d_time:
+        error = "Departure time is required"
+    elif not a_time:
+        error = "Arrive time is required"
+    elif not depart_airport:
+        error = "Departure airport is required"
+    elif not arrive_airport:
+        error = "Arrive airport is required"
+    elif not base_price:
+        error = "Base price is required"
+    elif not flight_status:
+        error = "Flight status is required"
+    elif not delay_status:
+        error = "Delay status is required"
+    elif db.execute('SELECT * FROM Flight WHERE flight_number=? and airline_name=? and depart_date_time=?',
+                    (flight_number, airline_name, depart_date_time)).fetchone() is not None:
+        error = "The flight exists"
+    elif db.execute('select * from Airplane where airline_name=? and  plane_id=?',
+                    (airline_name, plane_id)).fetchone() is None:
+        error = "The airplane does not exist"
+    elif db.execute('select * from Airport where airport_name=?', (depart_airport,)).fetchone() is not None:
+        error = "The departure airport does not exist"
+    elif db.execute('select * from Airport where airport_name=?', (arrive_airport,)).fetchone() is not None:
+        error = "The arrive airport does not exist"
+    else:
+        error = "You have successfully added the flight"
+    if error == "You have successfully added the flight":
+        db.execute("INSERT INTO "
+                   "Flight(plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,"
+                   " depart_airport, arrive_airport, base_price, flight_status, delay_status)"
+                   "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                   (plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,
+                    depart_airport, arrive_airport, base_price, flight_status, delay_status))
+        db.commit()
+        flash("Successfully added a flight")
+    return render_template('airline_staff.html')
+
+
 
 
 
