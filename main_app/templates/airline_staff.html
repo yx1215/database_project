@@ -157,6 +157,8 @@
     <br>
     <button onclick=view_ratings()>Click to view ratings</button>
     <hr>
+    <button onclick="location.href='{{ url_for('airline_staff.view_agents') }}';">Click to view booking agents</button>
+    <hr>
     <button onclick="location.href='{{ url_for('auth.logout') }}';">Logout</button>
 
 
@@ -200,5 +202,6 @@
         + "&flight_number=" + flight_number
         + "&depart_date_time=" + depart_date_time;
     }
+
 
 </script>

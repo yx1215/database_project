@@ -248,11 +248,35 @@ def view_ratings():
     else:
         error = "Successfully view ratings"
     if error == "Successfully view ratings":
-        my_ratings = db.execute("select avg(rating) as avg_rating, cust_email, rating, comment "
+        my_ratings = db.execute("select cust_email, rating, comment "
                                 "from Comments where airline_name=? and flight_number=? and depart_date_time=?",
                                 (airline_name, flight_number, depart_date_time))
+        avg_ratings = db.execute("select avg(rating) as avg_rating from Comments"
+                                 "where airline_name=? and flight_number=? and depart_date_time=?"
+                                 "group by (airline_name, flight_number, depart_date_time)", (airline_name, flight_number, depart_date_time)).fetchone()
     flash("View Ratings Status: " + error)
-    return render_template('view_ratings.html', my_ratings=my_ratings)
+    return render_template('view_ratings.html', my_ratings=my_ratings, avg_ratings=avg_ratings)
+
+
+@staff_bp.route('/view_agents', methods=('POST', 'GET'))
+@login_required_airline_staff
+def view_agents():
+    db = get_db()
+    from_date = str(datetime.now())
+    to_date_month = str(datetime.now() - relativedelta(days=30))
+    to_date_year = str(datetime.now() - relativedelta(year=1))
+    ticket_num_month = db.execute("SELECT booking_agent, COUNT(*) as count FROM Purchase "
+                                  "where booking_agent is not null and purchase_date_time between ? and ?"
+                                  "GROUP BY booking_agent ORDER BY count DESC LIMIT 5", (to_date_month, from_date))
+    ticket_num_year = db.execute("SELECT booking_agent, COUNT(*) as count FROM Purchase "
+                                 "where booking_agent is not null and  purchase_date_time between ? and ?"
+                                 "GROUP BY booking_agent ORDER BY count DESC LIMIT 5", (to_date_year, from_date))
+    commission = db.execute("SELECT booking_agent, SUM(sold_price * 0.1) as total_commission FROM Purchase "
+                            "where booking_agent is not null and purchase_date_time between ? and ?"
+                            "GROUP BY booking_agent ORDER BY total_commission DESC LIMIT 5", (to_date_year, from_date))
+    print(ticket_num_month.fetchone()[0])
+    return render_template('view_agents.html',
+                           ticket_num_month=ticket_num_month, ticket_num_year=ticket_num_year, commission=commission)
 
 
 
