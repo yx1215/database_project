@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Flights</title>
+    <h1>All the flights in your airline in next 30 days</h1>
+    <table border="1">
+      <tr>
+          <th>Airplane ID</th>
+          <th>Flight Number</th>
+          <th>Airline Name</th>
+          <th>Departure Time</th>
+          <th>Arrive Time</th>
+          <th>Departure Airport</th>
+          <th>Departure City</th>
+          <th>Arrive Airport</th>
+          <th>Arrive City</th>
+          <th>Base Price</th>
+          <th>Flight Status</th>
+          <th>Delay Status</th>
+
+      </tr>
+        {% for f in my_flight %}
+            <tr>
+                <th>{{ f['plane_id'] }}</th>
+                <th>{{ f['flight_number'] }}</th>
+                <th>{{ f['airline_name'] }}</th>
+                <th>{{ f['depart_date_time'] }}</th>
+                <th>{{ f['arrive_date_time'] }}</th>
+                <th>{{ f['depart_airport'] }}</th>
+                <th>{{ f['depart_city'] }}</th>
+                <th>{{ f['arrive_airport'] }}</th>
+                <th>{{ f['arrive_city'] }}</th>
+                <th>{{ f['base_price'] }}</th>
+                <th>{{ f['flight_status'] }}</th>
+                <th>{{ f['delay_status'] }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+
+</head>
+<body>
+
+</body>
+</html>
