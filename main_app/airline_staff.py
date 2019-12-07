@@ -232,6 +232,29 @@ def add_flight():
     return render_template('airline_staff.html')
 
 
+@staff_bp.route('/view_ratings', methods=('POST', 'GET'))
+@login_required_airline_staff
+def view_ratings():
+    print("CALLED!", list(request.args.keys()))
+    airline_name = request.args["airline_name"]
+    flight_number = request.args["flight_number"]
+    depart_date_time = request.args["depart_date_time"]
+    db = get_db()
+    if flight_number == "" or depart_date_time == "":
+        error = "Information not completed"
+    elif db.execute("select * from Flight where airline_name=? and flight_number=? and depart_date_time=?",
+                    (airline_name, flight_number, depart_date_time)):
+        error = "Flight does not exist"
+    else:
+        error = "Successfully view ratings"
+    if error == "Successfully view ratings":
+        my_ratings = db.execute("select avg(rating) as avg_rating, cust_email, rating, comment "
+                                "from Comments where airline_name=? and flight_number=? and depart_date_time=?",
+                                (airline_name, flight_number, depart_date_time))
+    flash("View Ratings Status: " + error)
+    return render_template('view_ratings.html', my_ratings=my_ratings)
+
+
 
 
 

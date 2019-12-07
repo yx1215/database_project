@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Ratings</title>
+    <table border="1">
+      <tr>
+          <th>Airline Name</th>
+          <th>Flight Number</th>
+          <th>Departure Time</th>
+          <th>Customer</th>>
+          <th>Comment</th>
+          <th>Rating</th>
+          <th>Average Rating</th>
+
+      </tr>
+        {% for f in my_flight %}
+            <tr>
+                <th>{{ f['airline_name'] }}</th>
+                <th>{{ f['flight_number'] }}</th>
+                <th>{{ f['depart_date_time'] }}</th>
+                <th>{{ f['cust_email'] }}</th>
+                <th>{{ f['comment'] }}</th>
+                <th>{{ f['rating'] }}</th>
+                <th>{{ f['avg_rating'] }}</th>
+
+            </tr>
+        {% endfor %}
+    </table>
+</head>
+<body>
+
+</body>
+</html>
