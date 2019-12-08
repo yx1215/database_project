@@ -112,8 +112,10 @@ def purchase():
             print("error:", error)
             flash(error)
             return render_template('./auth/purchase_interface.html', selected_flight=selected_flight, price=price)
-
-        booking_agent = None
+        if g.type != "booking_agent":
+            booking_agent = None
+        else:
+            booking_agent = g.user["agent_email"]
         db.execute('INSERT INTO Ticket (ticket_id, airline_name, flight_number, depart_date_time, arrive_date_time) VALUES '
                    '(?, ?, ?, ?, ?)', (ticket_id, airline_name, flight_number, depart_date_time, selected_flight['arrive_date_time']))
         db.execute('INSERT INTO Purchase (ticket_id, cust_email, booking_agent, sold_price, card_type, card_number, name_on_card, expire_date) VALUES '

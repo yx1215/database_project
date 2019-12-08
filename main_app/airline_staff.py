@@ -51,7 +51,7 @@ def add_airplane():
         my_airplane = db.execute("select * from Airplane where airline_name=?", (airline_name,))
         return render_template('view_airplanes.html', my_airplane=my_airplane)
 
-    return render_template('airline_staff.html')
+    return redirect(url_for("airline_staff.home"))
 
 
 @staff_bp.route('/update_status', methods=('POST', 'GET'))
@@ -85,7 +85,7 @@ def update_status():
 
     flash('Update Status Result: ' + message)
 
-    return render_template('airline_staff.html')
+    return redirect(url_for("airline_staff.home"))
 
 
 @staff_bp.route('/check_status', methods=('POST', 'GET'))
@@ -129,8 +129,8 @@ def add_airport():
     if db.execute('SELECT * FROM Airport WHERE airport_name=? ', (airport_name,)).fetchone() is not None:
         error = "The airport exists"
     else:
-        error = "You have successfully added the flight"
-    if error == "You have successfully added the flight":
+        error = "You have successfully added the airport"
+    if error == "You have successfully added the airport":
         db.execute("INSERT INTO "
                    "Airport(airport_name, city)"
                    "VALUES (?,?)",
@@ -159,6 +159,7 @@ def view_flights():
         # return render_template('view_future_flights.html', my_flight=my_flight)
     if from_date > to_date:
         flash("Wrong dates")
+        return redirect(url_for("airline_staff.home"))
     print(from_date, to_date)
     my_flight = db.execute("select * from Flight JOIN "
                            "(SELECT airport_name, city AS depart_city FROM Airport) A "
@@ -174,7 +175,7 @@ def view_flights():
 @staff_bp.route('/add_flight', methods=('POST', 'GET'))
 @login_required_airline_staff
 def add_flight():
-    print("CALLED")
+    print("CALLED add flight")
     airline_name = request.form['airline_name_flight']
     plane_id = request.form['plane_id_flight']
     flight_number = request.form['flight_number_flight']
@@ -214,12 +215,13 @@ def add_flight():
     elif db.execute('select * from Airplane where airline_name=? and  plane_id=?',
                     (airline_name, plane_id)).fetchone() is None:
         error = "The airplane does not exist"
-    elif db.execute('select * from Airport where airport_name=?', (depart_airport,)).fetchone() is not None:
+    elif db.execute('select * from Airport where airport_name=?', (depart_airport,)).fetchone() is None:
         error = "The departure airport does not exist"
-    elif db.execute('select * from Airport where airport_name=?', (arrive_airport,)).fetchone() is not None:
+    elif db.execute('select * from Airport where airport_name=?', (arrive_airport,)).fetchone() is None:
         error = "The arrive airport does not exist"
     else:
         error = "You have successfully added the flight"
+    print("here", error)
     if error == "You have successfully added the flight":
         db.execute("INSERT INTO "
                    "Flight(plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,"
@@ -228,8 +230,8 @@ def add_flight():
                    (plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,
                     depart_airport, arrive_airport, base_price, flight_status, delay_status))
         db.commit()
-        flash("Successfully added a flight")
-    return render_template('airline_staff.html')
+    flash(error)
+    return redirect(url_for("airline_staff.home"))
 
 
 @staff_bp.route('/view_ratings', methods=('POST', 'GET'))
@@ -258,7 +260,7 @@ def view_ratings():
                                  (airline_name, flight_number, depart_date_time)).fetchone()
         return render_template('view_ratings.html', my_ratings=my_ratings, avg_ratings=avg_ratings)
     else:
-        return render_template('airline_staff.html')
+        return redirect(url_for("airline_staff.home"))
 
 
 @staff_bp.route('/view_agents', methods=('POST', 'GET'))
@@ -305,7 +307,7 @@ def view_cust():
                       "group by cust_email))",
                       (airline_name, to_date, from_date, airline_name, to_date, from_date))
     if cust_email:
-        search = db.execute("select Flight.flight_number, Flight.depart_date_time from "
+        search = db.execute("select distinct Flight.flight_number, Flight.depart_date_time from "
                             "Customer natural join Purchase natural join Ticket inner join Flight "
                             "on Ticket.depart_date_time=Flight.depart_date_time "
                             "and Ticket.airline_name=Flight.airline_name and Ticket.flight_number=Flight.flight_number "
@@ -348,12 +350,69 @@ def top_dest():
 @staff_bp.route('/view_report', methods=('POST', 'GET'))
 @login_required_airline_staff
 def view_report():
-    from_date = request.form['from_date']
-    to_date = request.form['to_date']
-    from_year = str(datetime.now() - relativedelta(year=1))
-    to_year = str(datetime.now())
-
+    from_date = request.form["from_date"]
+    to_date = request.form["to_date"]
+    from_date = from_date + " 00:00:00"
+    to_date = to_date + " 23:59:59"
+    from_year = int(from_date[:4])
+    from_month = int(from_date[5:7])
+    to_year = int(to_date[:4])
+    to_month = int(to_date[5:7])
     db = get_db()
-    if from_date and to_date:
-        select = db.execute("select ")
-    pass
+    selected = db.execute("SELECT strftime('%Y', purchase_date_time) AS year, strftime('%m', purchase_date_time) AS month, count(*) AS count "
+                          "FROM (SELECT * FROM Purchase WHERE purchase_date_time BETWEEN ? AND ?) as P "
+                          "GROUP BY strftime('%Y', P.purchase_date_time), strftime('%m', P.purchase_date_time)",
+                          (from_date, to_date))
+    exist_count = {}
+    for r in selected:
+        exist_count[(int(r["year"]), int(r["month"]))] = int(r["count"])
+    spending = []
+    index = 1
+    for i in range(from_year, to_year + 1):
+
+        if i == from_year:
+            start = from_month
+        else:
+            start = 1
+        if i == to_year:
+            end = to_month
+        else:
+            end = 12
+
+        for j in range(start, end + 1):
+            d = {}
+            print(i, j)
+            d["year"] = i
+            d["month"] = j
+            if (i, j) in exist_count.keys():
+                d["count"] = exist_count[(i, j)]
+            else:
+                d["count"] = 0
+            d["index"] = index
+            index += 1
+            spending.append(d)
+    print(spending)
+    return render_template('view_report.html', spending=spending)
+
+
+@staff_bp.route('/view_revenue', methods=('POST', 'GET'))
+@login_required_airline_staff
+def view_revenue():
+    db = get_db()
+    cur = str(datetime.now())
+    from_year = str(datetime.now() - relativedelta(years=1))
+    from_month = str(datetime.now() - relativedelta(months=1))
+    last_year_direct = db.execute("SELECT SUM(sold_price) as s FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id "
+                                  "WHERE purchase_date_time between ? and ? AND airline_name=? AND booking_agent is NULL",
+                                  (from_year, cur, g.user['airline_name'])).fetchone()["s"]
+    last_year_indirect = db.execute("SELECT SUM(sold_price) as s FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id "
+                                  "WHERE purchase_date_time between ? and ? AND airline_name=? AND booking_agent is not NULL",
+                                  (from_year, cur, g.user['airline_name'])).fetchone()["s"]
+    last_month_direct = db.execute("SELECT SUM(sold_price) as s FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id "
+                                  "WHERE purchase_date_time between ? and ? AND airline_name=? AND booking_agent is NULL",
+                                  (from_month, cur, g.user['airline_name'])).fetchone()["s"]
+    last_month_indirect = db.execute("SELECT SUM(sold_price) as s FROM Purchase JOIN Ticket ON Purchase.ticket_id = Ticket.ticket_id "
+                                  "WHERE purchase_date_time between ? and ? AND airline_name=? AND booking_agent is not NULL",
+                                  (from_month, cur, g.user['airline_name'])).fetchone()["s"]
+
+    return render_template('view_revenue.html', last_year_direct=last_year_direct, last_year_indirect=last_year_indirect, last_month_direct=last_month_direct, last_month_indirect=last_month_indirect)
