@@ -187,10 +187,11 @@
     <hr>
     <h1>View Reports</h1>
     <label for="airline_name4">Airline Name</label>
-    <form method="post" action="{{ url_for('airline_staff.view_cust') }}">
-        <input id="airline_name_4" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
-        <label for="cust_email4">Customer E-mail</label>
-        <input id="cust_email4" name="cust_email" type="text" >
+    <form method="post" action="{{ url_for('airline_staff.view_report') }}">
+        <label for="from_date4">From</label>
+        <input id="from_date4" name="from_date" type="date">
+        <label for=""to_date4>To</label>
+        <input id="to_date4" name="to_date" type="date" >
         <input type="submit" value="Click to view the report in your airline">
         <br>
     </form>

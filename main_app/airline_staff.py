@@ -345,4 +345,15 @@ def top_dest():
     return render_template('airline_staff.html', value1=m, value2=y)
 
 
+@staff_bp.route('/view_report', methods=('POST', 'GET'))
+@login_required_airline_staff
+def view_report():
+    from_date = request.form['from_date']
+    to_date = request.form['to_date']
+    from_year = str(datetime.now() - relativedelta(year=1))
+    to_year = str(datetime.now())
 
+    db = get_db()
+    if from_date and to_date:
+        select = db.execute("select ")
+    pass
