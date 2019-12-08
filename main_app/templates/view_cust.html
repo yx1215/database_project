@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Customer</title>
+    <h>Most Frequent Customer(s)</h>
+    <table border="1">
+      <tr>
+          <th>Customer E-mail</th>
+          <th>Customer Name</th>
+      </tr>
+        {% for f in cust %}
+            <tr>
+                <th>{{ f['cust_email'] }}</th>
+                <th>{{ f['name'] }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+    <br><br>
+        <h>Your Searched Customer's Flights in Our Airline</h>
+    <table border="1">
+      <tr>
+          <th>Flight Number</th>
+          <th>Departure Time</th>
+      </tr>
+        {% for f in search %}
+            <tr>
+                <th>{{ f['flight_number'] }}</th>
+                <th>{{ f['depart_date_time'] }}</th>
+            </tr>
+        {% endfor %}
+    </table>
+</head>
+<body>
+
+</body>
+</html>

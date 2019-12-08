@@ -235,27 +235,30 @@ def add_flight():
 @staff_bp.route('/view_ratings', methods=('POST', 'GET'))
 @login_required_airline_staff
 def view_ratings():
-    print("CALLED!", list(request.args.keys()))
-    airline_name = request.args["airline_name"]
-    flight_number = request.args["flight_number"]
-    depart_date_time = request.args["depart_date_time"]
+    print("CALLED!")
+    airline_name = request.form["airline_name"]
+    flight_number = request.form["flight_number"]
+    time = request.form['depart_date_time'].split("T")
+    depart_date_time = time[0] + " " + time[1] + ":00"
+    print(airline_name, flight_number, depart_date_time)
     db = get_db()
-    if flight_number == "" or depart_date_time == "":
-        error = "Information not completed"
-    elif db.execute("select * from Flight where airline_name=? and flight_number=? and depart_date_time=?",
-                    (airline_name, flight_number, depart_date_time)):
+
+    if db.execute("select * from Flight where airline_name=? and flight_number=? and depart_date_time=?", (airline_name, flight_number, depart_date_time)).fetchone() is None:
         error = "Flight does not exist"
     else:
         error = "Successfully view ratings"
+    flash("View Ratings Status: " + error)
     if error == "Successfully view ratings":
-        my_ratings = db.execute("select cust_email, rating, comment "
+        my_ratings = db.execute("select airline_name, flight_number, depart_date_time, cust_email, rating, comment "
                                 "from Comments where airline_name=? and flight_number=? and depart_date_time=?",
                                 (airline_name, flight_number, depart_date_time))
-        avg_ratings = db.execute("select avg(rating) as avg_rating from Comments"
+        avg_ratings = db.execute("select avg(rating) as avg_rating from Comments "
                                  "where airline_name=? and flight_number=? and depart_date_time=?"
-                                 "group by (airline_name, flight_number, depart_date_time)", (airline_name, flight_number, depart_date_time)).fetchone()
-    flash("View Ratings Status: " + error)
-    return render_template('view_ratings.html', my_ratings=my_ratings, avg_ratings=avg_ratings)
+                                 "group by airline_name, flight_number, depart_date_time",
+                                 (airline_name, flight_number, depart_date_time)).fetchone()
+        return render_template('view_ratings.html', my_ratings=my_ratings, avg_ratings=avg_ratings)
+    else:
+        return render_template('airline_staff.html')
 
 
 @staff_bp.route('/view_agents', methods=('POST', 'GET'))
@@ -274,12 +277,72 @@ def view_agents():
     commission = db.execute("SELECT booking_agent, SUM(sold_price * 0.1) as total_commission FROM Purchase "
                             "where booking_agent is not null and purchase_date_time between ? and ?"
                             "GROUP BY booking_agent ORDER BY total_commission DESC LIMIT 5", (to_date_year, from_date))
-    print(ticket_num_month.fetchone()[0])
     return render_template('view_agents.html',
                            ticket_num_month=ticket_num_month, ticket_num_year=ticket_num_year, commission=commission)
 
 
+@staff_bp.route('/view_cust', methods=('POST', 'GET'))
+@login_required_airline_staff
+def view_cust():
+    print(request.form)
+    airline_name = request.form['airline_name']
+    try:
+        cust_email = request.form['cust_email']
+    except:
+        cust_email = None
+    from_date = str(datetime.now())
+    to_date = str(datetime.now() - relativedelta(year=1))
+    db = get_db()
+    cust = db.execute("select cust_email, name, count(ticket_id) as count1 from "
+                      "Customer natural join Purchase natural join Ticket "
+                      "where airline_name=? and purchase_date_time between ? and ?"
+                      "group by cust_email "
+                      "having count1 = "
+                      "(select max(c) from "
+                      "(select count(ticket_id) as c from "
+                      "Customer natural join Purchase natural join Ticket "
+                      "where airline_name=? and purchase_date_time between ? and ?"
+                      "group by cust_email))",
+                      (airline_name, to_date, from_date, airline_name, to_date, from_date))
+    if cust_email:
+        search = db.execute("select Flight.flight_number, Flight.depart_date_time from "
+                            "Customer natural join Purchase natural join Ticket inner join Flight "
+                            "on Ticket.depart_date_time=Flight.depart_date_time "
+                            "and Ticket.airline_name=Flight.airline_name and Ticket.flight_number=Flight.flight_number "
+                            "where Flight.airline_name=? and cust_email=?", (airline_name, cust_email))
+    else:
+        search = []
 
+    return render_template('view_cust.html', cust=cust, search=search)
+
+
+@staff_bp.route('/top_dest', methods=('POST', 'GET'))
+@login_required_airline_staff
+def top_dest():
+    from_date = str(datetime.now())
+    to_date_month = str(datetime.now() - relativedelta(month=3))
+    to_date_year = str(datetime.now() - relativedelta(year=1))
+    db = get_db()
+    month = db.execute("select city from Airport inner join Flight on "
+                       "Airport.airport_name=Flight.arrive_airport "
+                       "inner join Ticket T on Flight.airline_name = T.airline_name and "
+                       "Flight.flight_number = T.flight_number and Flight.depart_date_time = T.depart_date_time "
+                       "inner  join Purchase on Purchase.ticket_id=T.ticket_id "
+                       "where Purchase.purchase_date_time between ? and ?"
+                       "group by city order by count(city) desc limit 3", (to_date_month, from_date)).fetchall()
+    year = db.execute("select city from Airport inner join Flight on Airport.airport_name=Flight.arrive_airport "
+                      "inner join Ticket T on Flight.airline_name = T.airline_name and "
+                      "Flight.flight_number = T.flight_number and Flight.depart_date_time = T.depart_date_time "
+                      "inner  join Purchase on Purchase.ticket_id=T.ticket_id "
+                      "where Purchase.purchase_date_time between ? and ?"
+                      "group by city order by count(city) desc limit 3", (to_date_year, from_date)).fetchall()
+    y = []
+    for i in year:
+        y.append(i['city'])
+    m = []
+    for j in month:
+        m.append(j['city'])
+    return render_template('airline_staff.html', value1=m, value2=y)
 
 
 

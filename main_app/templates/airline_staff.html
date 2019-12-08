@@ -148,18 +148,56 @@
     </form>
     <hr>
     <h1>View Ratings</h1>
-    <label for="airline_name2">Airline Name</label>
-    <input id="airline_name2" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
-    <label for="flight_number2" >Flight Number</label>
-    <input id="flight_number2" type="text">
-    <label for="depart_date_time2">Departure Time</label>
-    <input id="depart_date_time" type="datetime-local">
+    <form method="post" action="{{ url_for('airline_staff.view_ratings') }}">
+        <label for="airline_name_flight">Airline Name</label>
+        <input id="airline_name_flight" name="airline_name_flight" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+
+        <label for="airline_name2">Airline Name</label>
+        <input id="airline_name2" name = "airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <label for="flight_number2" >Flight Number</label>
+        <input id="flight_number2" name = "flight_number" type="text" required>
+        <br>
+        <label for="depart_date_time2">Departure Time</label>
+        <input id="depart_date_time2" name = "depart_date_time" type="datetime-local" required>
+        <br>
+        <input type="submit" value="Click to view ratings">
+    </form>
     <br>
-    <button onclick=view_ratings()>Click to view ratings</button>
     <hr>
+    <h1>View Most Frequent Customer</h1>
+    <form method="post" action="{{ url_for('airline_staff.view_cust') }}">
+        <label for="airline_name3">Airline Name</label>
+        <input id="airline_name_3" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <label for="cust_email3">Customer E-mail</label>
+        <input id="cust_email3" name="cust_email" type="text" >
+        <br>
+        <input type="submit" value="Click to view the most frequent customer in your airline">
+        <br>
+    </form>
+
+    <hr>
+    <h1>View Agents</h1>
     <button onclick="location.href='{{ url_for('airline_staff.view_agents') }}';">Click to view booking agents</button>
     <hr>
+    <h1>View Top 3 Destinations</h1>
+    <button onclick="location.href='{{ url_for('airline_staff.top_dest') }}';">Click to view top 3 destinations</button>
+    <h2>Last 3 months: {{ value1 }}</h2>
+    <br>
+    <h2>Last year: {{ value2 }}</h2>>
+    <hr>
+    <h1>View Reports</h1>
+    <label for="airline_name4">Airline Name</label>
+    <form method="post" action="{{ url_for('airline_staff.view_cust') }}">
+        <input id="airline_name_4" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <label for="cust_email4">Customer E-mail</label>
+        <input id="cust_email4" name="cust_email" type="text" >
+        <input type="submit" value="Click to view the report in your airline">
+        <br>
+    </form>
+    <hr>
+    <br>
     <button onclick="location.href='{{ url_for('auth.logout') }}';">Logout</button>
+
 
 
 
@@ -192,16 +230,7 @@
         + "&arrive_airport=" + arrive_airport
         + "&arrive_city=" + arrive_city;
     }
-    
-    function view_ratings() {
-        const flight_number = document.getElementById("flight_number2").value;
-        const airline_name = document.getElementById("airline_name2").value;
-        const depart_date_time = document.getElementById("depart_date_time2").value;
 
-        location.href='{{ url_for('airline_staff.view_ratings') }}?airline_name=' + airline_name
-        + "&flight_number=" + flight_number
-        + "&depart_date_time=" + depart_date_time;
-    }
 
 
 </script>
