@@ -6,6 +6,7 @@ from main_app.authentication import login_required
 from main_app.database import get_db
 
 import random
+from datetime import datetime
 
 search_bp = Blueprint("search_purchase", __name__, url_prefix="/search_purchase")
 
@@ -21,6 +22,7 @@ def show_result():
         search_type = request.args["search_type"]
         departure_date = request.args["departure_date"] + "%"
         arrive_date = request.args["arrive_date"] + "%"
+        cur = str(datetime.now())
         db = get_db()
 
         if search_type == "one_way":
@@ -32,8 +34,10 @@ def show_result():
             target_flights = db.execute("SELECT * FROM Flight "
                                         "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
                                         "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
-                                        (departure_date, departure_airport, destination_airport, departure_city, destination_city)).fetchall()
+                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
+                                        "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
+                                        "AND depart_date_time>?",
+                                        (departure_date, departure_airport, destination_airport, departure_city, destination_city, cur)).fetchall()
             return render_template('./auth/search_result_one_way.html', flights=target_flights)
         elif search_type == "two_way":
             print("two_way")
@@ -45,15 +49,19 @@ def show_result():
             departure_flights = db.execute("SELECT * FROM Flight "
                                         "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
                                         "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
+                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
+                                           "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
+                                           "AND depart_date_time>?",
                                         (departure_date, departure_airport,
-                                         destination_airport, departure_city, destination_city)).fetchall()
+                                         destination_airport, departure_city, destination_city, cur)).fetchall()
             arrive_flights = db.execute("SELECT * FROM Flight "
                                            "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
                                            "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                           "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
+                                           "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
+                                        "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
+                                        "AND depart_date_time>?",
                                            (arrive_date, destination_airport,
-                                            departure_airport, destination_city, departure_city)).fetchall()
+                                            departure_airport, destination_city, departure_city, cur)).fetchall()
             return render_template('./auth/search_result_two_way.html', departure_flights=departure_flights, arrive_flights=arrive_flights)
 
         elif search_type == "by_airline":
@@ -85,7 +93,7 @@ def purchase():
     print(sold_seats["C"])
     percent = sold_seats['C'] / selected_flight['seat_amount']
     error = None
-    if percent < 0.7 :
+    if percent < 0.7:
         price = selected_flight["base_price"]
     elif 0.7 <= percent < 1:
         price = selected_flight["base_price"] * 1.2

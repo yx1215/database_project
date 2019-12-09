@@ -60,10 +60,13 @@ def register():
                 error = "Airline {} does not exist.".format(airline_name)
 
             if error is None:
-                db.execute('INSERT INTO Airline_Staff (username, password, first_name, last_name, date_of_birth, airline_name, phone_number) VALUES '
-                           '(?, ?, ?, ?, ?, ?, ?)',
-                           (email, generate_password_hash(password), first_name, last_name, date_of_birth, airline_name, phone_number)
+                db.execute('INSERT INTO Airline_Staff (username, password, first_name, last_name, date_of_birth, airline_name) VALUES '
+                           '(?, ?, ?, ?, ?, ?)',
+                           (email, generate_password_hash(password), first_name, last_name, date_of_birth, airline_name)
                            )
+                db.execute('INSERT INTO Staff_Phone_Number (username, staff_phone_number) VALUES '
+                           '(?, ?)',
+                           (email, phone_number))
                 db.commit()
                 return redirect(url_for("auth.login"))
 

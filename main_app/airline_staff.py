@@ -19,6 +19,27 @@ def home():
     return render_template('airline_staff.html')
 
 
+@staff_bp.route('/add_phone', methods=('POST', 'GET'))
+@login_required_airline_staff
+def add_phone():
+    user = g.user["username"]
+    new_phone = request.form["new_phone"]
+    db = get_db()
+    if db.execute('SELECT * FROM Staff_Phone_Number WHERE username=? AND staff_phone_number=?', (user, new_phone)).fetchone() is not None:
+        error = "Phone number exists."
+    else:
+        error = "Successfully add a phone_number"
+
+        db.execute('INSERT INTO Staff_Phone_Number (username, staff_phone_number) VALUES '
+                   '(?, ?)',
+                   (user, new_phone))
+        db.commit()
+
+    flash(error)
+
+    return redirect(url_for('airline_staff.home'))
+
+
 @staff_bp.route('/add_airplane', methods=('POST', 'GET'))
 @login_required_airline_staff
 def add_airplane():
@@ -39,7 +60,7 @@ def add_airplane():
     elif not seat_amount:
         error = "Seat amount is required"
     elif db.execute('SELECT * FROM Airplane WHERE plane_id = ?', (plane_id, )).fetchone() is not None:
-        error = "The plane has been added"
+        error = "The plane exists."
     else:
         message = "You have successfully added the airplane"
     if not error:
@@ -62,7 +83,7 @@ def update_status():
     flight_number = request.form['flight_number_status']
     delay_status = request.form['delay_status']
     time = request.form['depart_date_time_status'].split("T")
-    depart_date_time = time[0] + " " + time[1] + ":00"
+    depart_date_time = time[0] + " " + time[1]
     print(depart_date_time)
     db = get_db()
     if not flight_number:
@@ -95,7 +116,7 @@ def check_status():
     airline_name = request.form['airline_name']
     flight_number = request.form['flight_number']
     time = request.form['depart_date_time'].split("T")
-    depart_date_time = time[0] + " " + time[1] + ":00"
+    depart_date_time = time[0] + " " + time[1]
     print(depart_date_time)
     db = get_db()
     status = None
@@ -137,7 +158,7 @@ def add_airport():
                    (airport_name, city))
         db.commit()
     flash("Add Airport Status: " + error)
-    return render_template('airline_staff.html')
+    return redirect(url_for('airline_staff.home'))
 
 
 @staff_bp.route('/view_flights', methods=('POST', 'GET'))
@@ -181,12 +202,11 @@ def add_flight():
     flight_number = request.form['flight_number_flight']
     d_time = request.form['depart_date_time_flight'].split("T")
     a_time = request.form['arrive_date_time_flight'].split("T")
-    depart_date_time = d_time[0] + " " + d_time[1] + ":00"
-    arrive_date_time = a_time[0] + " " + a_time[1] + ":00"
+    depart_date_time = d_time[0] + " " + d_time[1]
+    arrive_date_time = a_time[0] + " " + a_time[1]
     depart_airport = request.form['departure_airport_flight']
     arrive_airport = request.form['arrive_airport_flight']
     base_price = request.form['base_price_flight']
-    flight_status = request.form['flight_status_flight']
     delay_status = request.form['delay_status_flight']
     db = get_db()
     if not airline_name:
@@ -205,8 +225,6 @@ def add_flight():
         error = "Arrive airport is required"
     elif not base_price:
         error = "Base price is required"
-    elif not flight_status:
-        error = "Flight status is required"
     elif not delay_status:
         error = "Delay status is required"
     elif db.execute('SELECT * FROM Flight WHERE flight_number=? and airline_name=? and depart_date_time=?',
@@ -225,10 +243,10 @@ def add_flight():
     if error == "You have successfully added the flight":
         db.execute("INSERT INTO "
                    "Flight(plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,"
-                   " depart_airport, arrive_airport, base_price, flight_status, delay_status)"
-                   "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                   " depart_airport, arrive_airport, base_price, delay_status)"
+                   "VALUES (?,?,?,?,?,?,?,?,?)",
                    (plane_id, flight_number, airline_name, depart_date_time, arrive_date_time,
-                    depart_airport, arrive_airport, base_price, flight_status, delay_status))
+                    depart_airport, arrive_airport, base_price, delay_status))
         db.commit()
     flash(error)
     return redirect(url_for("airline_staff.home"))
@@ -241,7 +259,7 @@ def view_ratings():
     airline_name = request.form["airline_name"]
     flight_number = request.form["flight_number"]
     time = request.form['depart_date_time'].split("T")
-    depart_date_time = time[0] + " " + time[1] + ":00"
+    depart_date_time = time[0] + " " + time[1]
     print(airline_name, flight_number, depart_date_time)
     db = get_db()
 

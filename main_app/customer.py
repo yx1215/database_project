@@ -62,13 +62,16 @@ def track_my_spending():
     to_year = int(to_date[:4])
     to_month = int(to_date[5:7])
     db = get_db()
+
     selected = db.execute("SELECT strftime('%Y', purchase_date_time) AS year, strftime('%m', purchase_date_time) AS month, SUM(P.sold_price) AS cost "
-                          "FROM (SELECT * FROM Purchase WHERE purchase_date_time BETWEEN ? AND ?) as P "
+                          "FROM (SELECT * FROM Purchase WHERE purchase_date_time BETWEEN ? AND ? AND Purchase.cust_email=?) as P "
                           "GROUP BY strftime('%Y', P.purchase_date_time), strftime('%m', P.purchase_date_time)",
-                          (from_date, to_date))
+                          (from_date, to_date, g.user['cust_email'])).fetchall()
     exist_cost = {}
+    print(selected)
     for r in selected:
         exist_cost[(int(r["year"]), int(r["month"]))] = int(r["cost"])
+    # print(g.user['cust_email'], exist_cost, from_date, to_date)
     spending = []
     index = 1
     for i in range(from_year, to_year + 1):
@@ -84,7 +87,6 @@ def track_my_spending():
 
         for j in range(start, end + 1):
             d = {}
-            print(i, j)
             d["year"] = i
             d["month"] = j
             if (i, j) in exist_cost.keys():
@@ -94,7 +96,6 @@ def track_my_spending():
             d["index"] = index
             index += 1
             spending.append(d)
-    print(spending)
     return render_template('view_my_spending.html', spending=spending)
 
 
@@ -102,7 +103,9 @@ def track_my_spending():
 def choose_flight_to_comment():
     current_time = str(datetime.now())
     db = get_db()
-    past_flights = db.execute("SELECT * FROM Flight WHERE depart_date_time<?", (current_time, ))
+    past_flights = db.execute("SELECT * FROM Purchase JOIN Ticket T on Purchase.ticket_id = T.ticket_id "
+                              "JOIN Flight F on T.airline_name = F.airline_name and T.flight_number = F.flight_number and T.depart_date_time = F.depart_date_time "
+                              "WHERE T.arrive_date_time<? AND Purchase.cust_email=?", (current_time, g.user['cust_email']))
     return render_template('view_my_past_flights.html', past_flights=past_flights)
 
 

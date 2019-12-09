@@ -17,6 +17,12 @@
     {% endfor %} {% block content %}{% endblock %}
 </section>
 <body>
+    <h1>Add new phone</h1>
+    <form action="{{ url_for('airline_staff.add_phone') }}" method="post">
+        <label for="new_phone">New Phone Number</label>
+        <input id="new_phone" name="new_phone" type="text" required>
+        <input type="submit" value="add new phone">
+    </form>
     <hr>
     <h1>Add an airplane</h1>
     <br><br>
@@ -80,7 +86,7 @@
         <label for="flight_number_check">Flight Number</label>
         <input id="flight_number_check" name="flight_number" type="text" required>
         <label for="depart_date_time_check">Departure Time</label>
-        <input id="depart_date_time_check" name="depart_date_time" type="datetime-local" required>
+        <input id="depart_date_time_check" name="depart_date_time" type="datetime-local" step="1" required>
         <br>
         <input type="submit" value="Click to check status">
         <br>
@@ -91,16 +97,19 @@
     <form method="post" action="{{ url_for('airline_staff.update_status') }}">
         <label for="airline_name_status">Airline Name</label>
         <input id="airline_name_status" name="airline_name_status" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
+        <br><br>
         <label for="flight_number_status">Flight Number</label>
         <input id="flight_number_status" name="flight_number_status" type="text" required>
+        <br><br>
         <label for="depart_date_time_status">Departure Time</label>
-        <input id="depart_date_time_status" name="depart_date_time_status" type="datetime-local" required>
+        <input id="depart_date_time_status" name="depart_date_time_status" type="datetime-local" step="1" required>
+        <br><br>
         <label for="delay_status">Delay Status</label>
         <select id="delay_status" name="delay_status">
             <option value="delayed">delayed</option>
             <option value="on-time">on-time</option>
         </select>
-        <br>
+        <br><br>
         <input type="submit" value="Click to change status">
         <br><br>
     </form>
@@ -109,39 +118,32 @@
     <form method="post" action="{{ url_for('airline_staff.add_flight') }}">
         <label for="airline_name_flight">Airline Name</label>
         <input id="airline_name_flight" name="airline_name_flight" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
-
+        <br><br>
         <label for="plane_id_flight">Plane ID</label>
         <input id="plane_id_flight" name="plane_id_flight" type="number" required>
-
+        <br><br>
         <label for="flight_number_flight">Flight Number</label>
         <input id="flight_number_flight" name="flight_number_flight" type="text" required>
-
+        <br><br>
         <label for="depart_date_time_flight">Departure Time</label>
-        <input id="depart_date_time_flight" name="depart_date_time_flight" type="datetime-local" required>
-
+        <input id="depart_date_time_flight" name="depart_date_time_flight" type="datetime-local" step="1" required>
+        <br><br>
         <label for="arrive_date_time_flight">Arrive Time</label>
-        <input id="arrive_date_time_flight" name="arrive_date_time_flight" type="datetime-local" required>
-
+        <input id="arrive_date_time_flight" name="arrive_date_time_flight" type="datetime-local" step="1" required>
+        <br><br>
         <label for="departure_airport_flight">Departure Airport</label>
         <input id="departure_airport_flight" name="departure_airport_flight" type="text" required>
-
+        <br><br>
         <label for="arrive_airport_flight">Arrive Airport</label>
         <input id="arrive_airport_flight" name="arrive_airport_flight" type="text" required>
-
+        <br><br>
         <label for="base_price_flight">Base Price</label>
         <input id="base_price_flight" name="base_price_flight" type="number" required>
-
-        <label for="flight_status_flight">Delay Status</label>
-        <select id="flight_status_flight" name="flight_status_flight" required>
-            <option value="departured">departured</option>
-            <option value="undepartured">undepartured</option>
-            <option value="arrived">arrived</option>
-        </select>
-
+        <br><br>
         <label for="delay_status_flight">Delay Status</label>
         <select id="delay_status_flight" name="delay_status_flight" required>
             <option value="delayed">delayed</option>
-            <option value="on_time">on-time</option>
+            <option value="on-time">on-time</option>
         </select>
         <br>
         <input type="submit" value="Click to add the flight">
@@ -158,7 +160,7 @@
         <input id="flight_number2" name = "flight_number" type="text" required>
         <br>
         <label for="depart_date_time2">Departure Time</label>
-        <input id="depart_date_time2" name = "depart_date_time" type="datetime-local" required>
+        <input id="depart_date_time2" name = "depart_date_time" type="datetime-local" step="1" required>
         <br>
         <input type="submit" value="Click to view ratings">
     </form>
