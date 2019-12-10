@@ -7,6 +7,7 @@ from main_app.database import get_db
 
 import random
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 search_bp = Blueprint("search_purchase", __name__, url_prefix="/search_purchase")
 
@@ -20,11 +21,20 @@ def search():
 def show_result():
     if request.method == "POST":
         search_type = request.args["search_type"]
+        time = request.args["departure_date"]
         departure_date = request.args["departure_date"] + "%"
         arrive_date = request.args["arrive_date"] + "%"
         cur = str(datetime.now())
         db = get_db()
+        if not time:
+            from_day = datetime.now()
+            to_day = str(datetime.now() + relativedelta(days=+7))
 
+        else:
+            time = datetime.strptime(time, '%Y-%m-%d')
+            to_day = str(time + relativedelta(days=+7))
+            from_day = str(time)
+        from_day = str(from_day)
         if search_type == "one_way":
             departure_city = request.args["departure_city"] + "%"
             departure_airport = request.args["departure_airport"] + "%"
@@ -32,13 +42,33 @@ def show_result():
             destination_airport = request.args["destination_airport"] + "%"
 
             target_flights = db.execute("SELECT * FROM Flight "
-                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
+                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on"
+                                        " Flight.depart_airport = A.airport_name "
+                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON"
+                                        " Flight.arrive_airport=A2.airport_name "
                                         "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
-                                        "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
-                                        "AND depart_date_time>?",
-                                        (departure_date, departure_airport, destination_airport, departure_city, destination_city, cur)).fetchall()
-            return render_template('./auth/search_result_one_way.html', flights=target_flights)
+                                        "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?",
+                                        "AND depart_date_time>=?",
+                                        (departure_date, departure_airport, destination_airport, departure_city,
+                                         destination_city, cur)).fetchall()
+            cheap_flight = db.execute("SELECT * FROM Flight "
+                                      "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on "
+                                      "Flight.depart_airport = A.airport_name "
+                                      "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON "
+                                      "Flight.arrive_airport=A2.airport_name "
+                                      "WHERE depart_date_time between ? and ?"
+                                      "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
+                                      "AND base_price = (select min(base_price) from Flight JOIN "
+                                      "(SELECT airport_name, city as departure_city FROM Airport) A on "
+                                      "Flight.depart_airport = A.airport_name "
+                                      "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON "
+                                      "Flight.arrive_airport=A2.airport_name "
+                                      "group by flight_number, A.airport_name, A.departure_city)",
+                                      (from_day, to_day, destination_airport, departure_city, destination_city)).fetchall()
+            print(not target_flights)
+            return render_template('./auth/search_result_one_way.html',
+                                   flights=target_flights, cheap_flight=cheap_flight)
+
         elif search_type == "two_way":
             print("two_way")
             departure_city = request.args["departure_city"] + "%"
@@ -51,15 +81,15 @@ def show_result():
                                         "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
                                         "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
                                            "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
-                                           "AND depart_date_time>?",
+                                           "AND depart_date_time>=?",
                                         (departure_date, departure_airport,
                                          destination_airport, departure_city, destination_city, cur)).fetchall()
             arrive_flights = db.execute("SELECT * FROM Flight "
-                                           "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
-                                           "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
-                                           "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
+                                        "JOIN (SELECT airport_name, city as departure_city FROM Airport) A on Flight.depart_airport = A.airport_name "
+                                        "JOIN (SELECT airport_name, city as arrive_city FROM Airport) A2 ON Flight.arrive_airport=A2.airport_name "
+                                        "WHERE (depart_date_time LIKE ?) AND depart_airport LIKE ? "
                                         "AND arrive_airport LIKE ? AND departure_city LIKE ? AND arrive_city LIKE ?"
-                                        "AND depart_date_time>?",
+                                        "AND depart_date_time>=?",
                                            (arrive_date, destination_airport,
                                             departure_airport, destination_city, departure_city, cur)).fetchall()
             return render_template('./auth/search_result_two_way.html', departure_flights=departure_flights, arrive_flights=arrive_flights)

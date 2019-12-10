@@ -38,7 +38,43 @@
         {% endfor %}
         {% endif %}
     </table>
+    <table border="1">
+      <tr>
+        <th>Search Result</th>
+      </tr>
+    <h2>The cheapest tickets in 7 days:</h2>
+      <tr>
+          <th>Flight Number</th>
+          <th>Airline</th>
+          <th>Departure Time</th>
+          <th>Departure Airport</th>
+          <th>Departure City</th>
+          <th>Arrive Time</th>
+          <th>Arrive Airport</th>
+          <th>Arrive City</th>
+          <th>Delay Status</th>
+          <th>Purchase</th>
+      </tr>
+        {% if cheap_flight %}
+        {% for f in cheap_flight %}
+        <tr>
+            <th>{{ f['flight_number'] }}</th>
+            <th>{{ f['airline_name'] }}</th>
+            <th>{{ f['depart_date_time'] }}</th>
+            <th>{{ f['depart_airport'] }}</th>
+            <th>{{ f['departure_city'] }}</th>
+            <th>{{ f['arrive_date_time'] }}</th>
+            <th>{{ f['arrive_airport'] }}</th>
+            <th>{{ f['arrive_city'] }}</th>
+            <th>{{ f['delay_status'] }}</th>
+            <th><button onclick="purchase('{{ f['flight_number'] }}', '{{ f['airline_name'] }}', '{{ f['depart_date_time'] }}')">Purchase</button></th>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </table>
     <button onclick="window.location.reload();">Back to Search</button>
+
+
 </body>
 </html>
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>

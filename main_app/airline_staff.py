@@ -7,7 +7,6 @@ from main_app.database import get_db
 
 import random
 from datetime import datetime
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 staff_bp = Blueprint("airline_staff", __name__, url_prefix="/airline_staff")
@@ -178,9 +177,9 @@ def view_flights():
         from_date = str(datetime.now())
         to_date = str(datetime.now() + relativedelta(days=30))
         # return render_template('view_future_flights.html', my_flight=my_flight)
-    if from_date > to_date:
-        flash("Wrong dates")
-        return redirect(url_for("airline_staff.home"))
+    # if from_date > to_date:
+    #     flash("Wrong dates")
+    #     return redirect(url_for("airline_staff.home"))
     print(from_date, to_date)
     my_flight = db.execute("select * from Flight JOIN "
                            "(SELECT airport_name, city AS depart_city FROM Airport) A "

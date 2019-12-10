@@ -151,9 +151,6 @@
     <hr>
     <h1>View Ratings</h1>
     <form method="post" action="{{ url_for('airline_staff.view_ratings') }}">
-        <label for="airline_name_flight">Airline Name</label>
-        <input id="airline_name_flight" name="airline_name_flight" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
-
         <label for="airline_name2">Airline Name</label>
         <input id="airline_name2" name = "airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
         <label for="flight_number2" >Flight Number</label>
@@ -166,7 +163,7 @@
     </form>
     <br>
     <hr>
-    <h1>View Most Frequent Customer</h1>
+    <h1>View Frequent Customer</h1>
     <form method="post" action="{{ url_for('airline_staff.view_cust') }}">
         <label for="airline_name3">Airline Name</label>
         <input id="airline_name_3" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
@@ -189,6 +186,7 @@
     <hr>
     <h1>View Reports</h1>
     <label for="airline_name4">Airline Name</label>
+    <input id="airline_name_4" name="airline_name" type="text" value= "{{ g.user['airline_name'] }}" readonly="true" >
     <form method="post" action="{{ url_for('airline_staff.view_report') }}">
         <label for="from_date4">From</label>
         <input id="from_date4" name="from_date" type="date" required>
